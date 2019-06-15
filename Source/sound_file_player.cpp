@@ -7,7 +7,6 @@
 */
 
 #include "sound_file_player.h"
-#include <iostream>
 
 //==============================================================================
 SoundFilePlayerComponent::SoundFilePlayerComponent()
@@ -49,6 +48,7 @@ SoundFilePlayerComponent::SoundFilePlayerComponent()
 	progressBar_.setRange(0.0, 1.0);
 	progressBar_.addListener(this);
 	addAndMakeVisible(&progressBar_);
+	progressBar_.setEnabled(false);
 
     setSize (300, 200);
 
@@ -209,7 +209,11 @@ void SoundFilePlayerComponent::openButtonClicked() {
 			// Store a reader source object for the reader in a temporary unique_ptr
 			std::unique_ptr<AudioFormatReaderSource> newSource(new AudioFormatReaderSource(reader, true));
 			transportSource_.setSource(newSource.get(), 0, nullptr, reader->sampleRate);
+
+			// Update UI now that we have a file loaded
 			playButton_.setEnabled(true);
+			loopToggleButton_.setToggleState(false, dontSendNotification);
+			progressBar_.setEnabled(true);
 
 			// Now that the bookkeeping is done, set the readerSource to our new object
 			readerSource_.reset(newSource.release());
