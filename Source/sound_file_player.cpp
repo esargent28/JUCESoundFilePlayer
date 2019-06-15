@@ -178,7 +178,7 @@ void SoundFilePlayerComponent::timerCallback() {
 /*
  * Updates the progress of the audio source when the slider is done being dragged
  */
-void SoundFilePlayerComponent::sliderDragEnded(Slider *s) {
+void SoundFilePlayerComponent::sliderDragEnded(Slider *) {
 	transportSource_.setPosition(progressBar_.getValue() * transportSource_.getLengthInSeconds());
 }
 
@@ -194,6 +194,12 @@ void SoundFilePlayerComponent::releaseResources() {
 
 
 void SoundFilePlayerComponent::openButtonClicked() {
+
+	// Pause player if not already paused or stopped (loading a new file while the
+	//   transport source is still playing leads to weird behavior)
+	if (transportSource_.isPlaying()) {
+		changeState(Pausing);
+	}
 
 	// Create a file chooser that only allows wav files
 	FileChooser chooser("Select a .wav file to play...", {}, "*.wav");
@@ -213,6 +219,7 @@ void SoundFilePlayerComponent::openButtonClicked() {
 			// Update UI now that we have a file loaded
 			playButton_.setEnabled(true);
 			loopToggleButton_.setToggleState(false, dontSendNotification);
+			progressBar_.setValue(0.0);
 			progressBar_.setEnabled(true);
 
 			// Now that the bookkeeping is done, set the readerSource to our new object

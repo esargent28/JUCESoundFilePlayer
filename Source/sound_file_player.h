@@ -34,9 +34,9 @@ public:
 	void timerCallback() override;
 
 	// Callback functions for progress bar listeners
-	void sliderDragEnded(Slider *s) override;
-	void sliderDragStarted(Slider *s) override { }
-	void sliderValueChanged(Slider *s) override { }
+	void sliderDragEnded(Slider *) override;
+	void sliderDragStarted(Slider *) override { }
+	void sliderValueChanged(Slider *) override { }
 
     void resized() override;
 
