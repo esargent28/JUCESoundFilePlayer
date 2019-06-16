@@ -45,6 +45,7 @@ SoundFilePlayerComponent::SoundFilePlayerComponent()
 	// Initialize & add progress bar and set initial progress value to 0.0
 	currentProgress_ = 0;
 	progressBar_.setValue(currentProgress_, dontSendNotification);
+	progressBar_.setTextBoxStyle(Slider::NoTextBox, true, 0, 0);
 	progressBar_.setRange(0.0, 1.0);
 	progressBar_.addListener(this);
 	addAndMakeVisible(&progressBar_);
