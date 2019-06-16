@@ -1,11 +1,12 @@
 /*
   ==============================================================================
 
-    This file was auto-generated!
+  sound_file_player.h -- interface for sound file player component
+	- Initial code based on JUCE's audio player tutorial
+	- Progress slider added by Erik Sargent
 
   ==============================================================================
 */
-
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
@@ -15,10 +16,10 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class SoundFilePlayerComponent   : public AudioAppComponent,
-								   public ChangeListener,
-								   public Timer,
-								   public Slider::Listener
+class SoundFilePlayerComponent : public AudioAppComponent,
+						         public ChangeListener,
+								 public Timer,
+								 public Slider::Listener
 {
 public:
 	SoundFilePlayerComponent();
@@ -67,9 +68,6 @@ private:
 	// Progress bar and progress value
 	Slider progressBar_;
 	double currentProgress_;
-
-	// Label for timer position
-	Label timeLabel_;
 
 	// Managers, sources, & transport state
 	AudioFormatManager formatManager_;

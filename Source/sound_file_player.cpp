@@ -1,7 +1,9 @@
 /*
   ==============================================================================
 
-    This file was auto-generated!
+  sound_file_player.cpp -- implementations of sound file player component
+	- Initial code based on JUCE's audio player tutorial 
+	- Progress slider added by Erik Sargent
 
   ==============================================================================
 */
@@ -9,6 +11,8 @@
 #include "sound_file_player.h"
 
 //==============================================================================
+
+// Constructor
 SoundFilePlayerComponent::SoundFilePlayerComponent()
 {
 	// State is initially "Stopped"
@@ -38,10 +42,6 @@ SoundFilePlayerComponent::SoundFilePlayerComponent()
 	loopToggleButton_.setButtonText("Loop");
 	loopToggleButton_.onClick = [this] { loopButtonChanged(); };
 
-	// Add the time label & specify the initial text
-	addAndMakeVisible(&timeLabel_);
-	timeLabel_.setText("Stopped", dontSendNotification);
-
 	// Initialize & add progress bar and set initial progress value to 0.0
 	currentProgress_ = 0;
 	progressBar_.setValue(currentProgress_, dontSendNotification);
@@ -60,12 +60,16 @@ SoundFilePlayerComponent::SoundFilePlayerComponent()
 }
 
 
+// Destructor
 SoundFilePlayerComponent::~SoundFilePlayerComponent()
 {
 	shutdownAudio();
 }
 
 
+/*
+ * Changes the player's state to newState
+ */
 void SoundFilePlayerComponent::changeState(TransportState newState) {
 
 	if (state_ != newState) {
@@ -107,6 +111,9 @@ void SoundFilePlayerComponent::changeState(TransportState newState) {
 }
 
 
+/* 
+ * Updates the player's loop setting based on the provided bool flag
+ */
 void SoundFilePlayerComponent::updateLoopState(const bool &loopFlag) {
 	if (readerSource_.get() != nullptr) {
 		readerSource_->setLooping(loopFlag);
@@ -163,14 +170,6 @@ void SoundFilePlayerComponent::timerCallback() {
 		if (progressBar_.getThumbBeingDragged() < 0) {
 			progressBar_.setValue(currentProgress_);
 		}
-
-		String pos_str = String::formatted("%02d:%02d:%03d -- %.1f%%", minutes, seconds, millis, currentProgress_ * 100);
-
-		timeLabel_.setText(pos_str, dontSendNotification);
-	}
-	else {
-		if (state_ == Stopping || state_ == Stopped)
-			timeLabel_.setText("Stopped", dontSendNotification);
 	}
 }
 
@@ -183,16 +182,26 @@ void SoundFilePlayerComponent::sliderDragEnded(Slider *) {
 }
 
 
+/*
+ * Prepares the audio transport source to play bassed on the expected # of samples per block and
+ *   sampling rate
+ */
 void SoundFilePlayerComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate) {
 	transportSource_.prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
 
 
+/*
+ * Releases the transport source's resources
+ */
 void SoundFilePlayerComponent::releaseResources() {
 	transportSource_.releaseResources();
 }
 
 
+/*
+ * Callback run when the player's Open button is clicked
+ */
 void SoundFilePlayerComponent::openButtonClicked() {
 
 	// Pause player if not already paused or stopped (loading a new file while the
@@ -229,6 +238,9 @@ void SoundFilePlayerComponent::openButtonClicked() {
 }
 
 
+/*
+ * Callback run when the player's Play button is clicked
+ */
 void SoundFilePlayerComponent::playButtonClicked() {
 	if ((state_ == Stopped) || (state_ == Paused))
 		changeState(Starting);
@@ -237,6 +249,9 @@ void SoundFilePlayerComponent::playButtonClicked() {
 }
 
 
+/*
+ * Callback run when the player's Stop button is clicked
+ */
 void SoundFilePlayerComponent::stopButtonClicked() {
 	if (state_ == Paused)
 		changeState(Stopped);
@@ -245,19 +260,24 @@ void SoundFilePlayerComponent::stopButtonClicked() {
 }
 
 
+/*
+ * Callback run when the player's Loop checkbox is toggled
+ */
 void SoundFilePlayerComponent::loopButtonChanged() {
 	updateLoopState(loopToggleButton_.getToggleState());
 }
 
 
+/* 
+ * Callback run when the player's window is resized
+ */
 void SoundFilePlayerComponent::resized()
 {
 	openButton_.setBounds(10, 10, getWidth() - 20, 20);
 	playButton_.setBounds(10, 40, getWidth() - 20, 20);
 	stopButton_.setBounds(10, 70, getWidth() - 20, 20);
-	loopToggleButton_.setBounds(10, 100, getWidth() - 20, 20);
-	timeLabel_.setBounds(10, 130, getWidth() - 20, 20);
-	progressBar_.setBounds(10, 160, getWidth() - 20, 20);
+	loopToggleButton_.setBounds((getWidth() / 2) - 35, 130, 70, 20);
+	progressBar_.setBounds(10, 100, getWidth() - 20, 20);
 }
 
 
