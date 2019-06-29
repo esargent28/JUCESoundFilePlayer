@@ -9,6 +9,8 @@
 */
 
 #include "sound_file_player.h"
+#include <random>
+#include <iostream>
 
 //==============================================================================
 
@@ -42,12 +44,18 @@ SoundFilePlayerComponent::SoundFilePlayerComponent()
 	loopToggleButton_.setButtonText("Loop");
 	loopToggleButton_.onClick = [this] { loopButtonChanged(); };
 
+	// Initialize volume slider, set initial values of volume variables
+	volumeSlider_.setRange(0.0, 1.0);
+	volumeSlider_.setValue(1.0, dontSendNotification);
+	volumeSlider_.setTextBoxStyle(Slider::TextBoxLeft, true, 100, 20);
+	addAndMakeVisible(&volumeSlider_);
+
 	// Initialize & add progress bar and set initial progress value to 0.0
 	currentProgress_ = 0;
 	progressBar_.setValue(currentProgress_, dontSendNotification);
-	progressBar_.setTextBoxStyle(Slider::NoTextBox, true, 0, 0);
+	progressBar_.setTextBoxStyle(Slider::TextBoxLeft, true, 100, 20);
 	progressBar_.setRange(0.0, 1.0);
-	progressBar_.addListener(this);
+	progressBar_.onDragEnd = [this] { sliderDragEnded(); };
 	addAndMakeVisible(&progressBar_);
 	progressBar_.setEnabled(false);
 
@@ -151,6 +159,16 @@ void SoundFilePlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &b
 	}
 
 	transportSource_.getNextAudioBlock(bufferToFill);
+
+	float volume = volumeSlider_.getValue();
+
+	for (int channel = 0; channel < bufferToFill.buffer->getNumChannels(); channel++) {
+		auto *buffer = bufferToFill.buffer->getWritePointer(channel);
+
+		for (int sample = 0; sample < bufferToFill.buffer->getNumSamples(); sample++) {
+			buffer[sample] = buffer[sample] * volume;
+		}
+	}
 }
 
 
@@ -178,7 +196,7 @@ void SoundFilePlayerComponent::timerCallback() {
 /*
  * Updates the progress of the audio source when the slider is done being dragged
  */
-void SoundFilePlayerComponent::sliderDragEnded(Slider *) {
+void SoundFilePlayerComponent::sliderDragEnded() {
 	transportSource_.setPosition(progressBar_.getValue() * transportSource_.getLengthInSeconds());
 }
 
@@ -277,8 +295,9 @@ void SoundFilePlayerComponent::resized()
 	openButton_.setBounds(10, 10, getWidth() - 20, 20);
 	playButton_.setBounds(10, 40, getWidth() - 20, 20);
 	stopButton_.setBounds(10, 70, getWidth() - 20, 20);
-	loopToggleButton_.setBounds((getWidth() / 2) - 35, 130, 70, 20);
 	progressBar_.setBounds(10, 100, getWidth() - 20, 20);
+	volumeSlider_.setBounds(10, 130, getWidth() - 20, 20);
+	loopToggleButton_.setBounds((getWidth() / 2) - 35, 160, 70, 20);
 }
 
 

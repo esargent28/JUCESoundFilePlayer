@@ -18,8 +18,7 @@
 */
 class SoundFilePlayerComponent : public AudioAppComponent,
 						         public ChangeListener,
-								 public Timer,
-								 public Slider::Listener
+								 public Timer
 {
 public:
 	SoundFilePlayerComponent();
@@ -34,10 +33,11 @@ public:
 	void changeListenerCallback(ChangeBroadcaster *source) override;
 	void timerCallback() override;
 
-	// Callback functions for progress bar listeners
-	void sliderDragEnded(Slider *) override;
-	void sliderDragStarted(Slider *) override { }
-	void sliderValueChanged(Slider *) override { }
+	// Callback function for progress bar listeners
+	void sliderDragEnded();
+
+	// Callback function for volume slider
+	void volumeChanged();
 
     void resized() override;
 
@@ -68,6 +68,9 @@ private:
 	// Progress bar and progress value
 	Slider progressBar_;
 	double currentProgress_;
+
+	// Volume slider, volume member variables
+	Slider volumeSlider_;
 
 	// Managers, sources, & transport state
 	AudioFormatManager formatManager_;
