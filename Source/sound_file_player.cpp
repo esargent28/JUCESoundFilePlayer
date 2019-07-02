@@ -44,22 +44,40 @@ SoundFilePlayerComponent::SoundFilePlayerComponent()
 	loopToggleButton_.setButtonText("Loop");
 	loopToggleButton_.onClick = [this] { loopButtonChanged(); };
 
-	// Initialize volume slider, set initial values of volume variables
+	// Initialize volume slider
 	volumeSlider_.setRange(0.0, 1.0);
 	volumeSlider_.setValue(1.0, dontSendNotification);
-	volumeSlider_.setTextBoxStyle(Slider::TextBoxLeft, true, 100, 20);
+	volumeSlider_.setTextBoxStyle(Slider::TextBoxLeft, true, 50, 20);
 	addAndMakeVisible(&volumeSlider_);
+
+	// Initialize volume label
+	volumeLabel_.setText("Volume:", dontSendNotification);
+	addAndMakeVisible(&volumeLabel_);
+
+	// Initialize noise bar
+	noiseSlider_.setRange(0.0, 1.0);
+	noiseSlider_.setValue(0.0, dontSendNotification);
+	noiseSlider_.setTextBoxStyle(Slider::TextBoxLeft, true, 50, 20);
+	addAndMakeVisible(&noiseSlider_);
+
+	// Initialize noise label
+	noiseLabel_.setText("Noise %:", dontSendNotification);
+	addAndMakeVisible(&noiseLabel_);
 
 	// Initialize & add progress bar and set initial progress value to 0.0
 	currentProgress_ = 0;
 	progressBar_.setValue(currentProgress_, dontSendNotification);
-	progressBar_.setTextBoxStyle(Slider::TextBoxLeft, true, 100, 20);
+	progressBar_.setTextBoxStyle(Slider::TextBoxLeft, true, 50, 20);
 	progressBar_.setRange(0.0, 1.0);
 	progressBar_.onDragEnd = [this] { sliderDragEnded(); };
 	addAndMakeVisible(&progressBar_);
 	progressBar_.setEnabled(false);
 
-    setSize (300, 200);
+	// Initialize progress label
+	progressLabel_.setText("Progress:", dontSendNotification);
+	addAndMakeVisible(&progressLabel_);
+
+    setSize (400, 300);
 
 	formatManager_.registerBasicFormats();
 	transportSource_.addChangeListener(this);
@@ -161,12 +179,14 @@ void SoundFilePlayerComponent::getNextAudioBlock(const AudioSourceChannelInfo &b
 	transportSource_.getNextAudioBlock(bufferToFill);
 
 	float volume = volumeSlider_.getValue();
+	float noiseLevel = noiseSlider_.getValue();
 
 	for (int channel = 0; channel < bufferToFill.buffer->getNumChannels(); channel++) {
 		auto *buffer = bufferToFill.buffer->getWritePointer(channel);
 
 		for (int sample = 0; sample < bufferToFill.buffer->getNumSamples(); sample++) {
-			buffer[sample] = buffer[sample] * volume;
+			buffer[sample] *= volume;
+			buffer[sample] *= (1 - noiseLevel + noiseLevel * random.nextFloat());
 		}
 	}
 }
@@ -180,9 +200,9 @@ void SoundFilePlayerComponent::timerCallback() {
 	if (transportSource_.isPlaying()) {
 		RelativeTime pos(transportSource_.getCurrentPosition());
 
-		int minutes = ((int) pos.inMinutes() % 60);
-		int seconds = ((int) pos.inSeconds() % 60);
-		int millis  = ((int) pos.inMilliseconds() % 60);
+		// int minutes = ((int) pos.inMinutes() % 60);
+		// int seconds = ((int) pos.inSeconds() % 60);
+		// int millis  = ((int) pos.inMilliseconds() % 60);
 
 		// Get new progress value, only update its value if we aren't currently dragging it
 		currentProgress_ = transportSource_.getCurrentPosition() / transportSource_.getLengthInSeconds();
@@ -295,9 +315,15 @@ void SoundFilePlayerComponent::resized()
 	openButton_.setBounds(10, 10, getWidth() - 20, 20);
 	playButton_.setBounds(10, 40, getWidth() - 20, 20);
 	stopButton_.setBounds(10, 70, getWidth() - 20, 20);
-	progressBar_.setBounds(10, 100, getWidth() - 20, 20);
-	volumeSlider_.setBounds(10, 130, getWidth() - 20, 20);
-	loopToggleButton_.setBounds((getWidth() / 2) - 35, 160, 70, 20);
+
+	progressLabel_.setBounds(10, 100, 70, 20);
+	volumeLabel_.setBounds(10, 130, 70, 20);
+	noiseLabel_.setBounds(10, 160, 70, 20);
+
+	progressBar_.setBounds(80, 100, getWidth() - 90, 20);
+	volumeSlider_.setBounds(80, 130, getWidth() - 90, 20);
+	noiseSlider_.setBounds(80, 160, getWidth() - 90, 20);
+	loopToggleButton_.setBounds((getWidth() / 2) - 35, 190, 70, 20);
 }
 
 

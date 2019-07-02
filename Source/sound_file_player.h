@@ -36,9 +36,6 @@ public:
 	// Callback function for progress bar listeners
 	void sliderDragEnded();
 
-	// Callback function for volume slider
-	void volumeChanged();
-
     void resized() override;
 
 private:
@@ -68,11 +65,18 @@ private:
 	// Progress bar and progress value
 	Slider progressBar_;
 	double currentProgress_;
+	Label progressLabel_;
 
-	// Volume slider, volume member variables
+	// Volume slider & label
 	Slider volumeSlider_;
+	Label volumeLabel_;
 
-	// Managers, sources, & transport state
+	// Noise bar
+	Slider noiseSlider_;
+	Label noiseLabel_;
+
+	// Managers, sources, random generator, & transport state
+	Random random;
 	AudioFormatManager formatManager_;
 	std::unique_ptr<AudioFormatReaderSource> readerSource_;
 	AudioTransportSource transportSource_;
